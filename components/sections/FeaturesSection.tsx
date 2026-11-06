@@ -50,52 +50,52 @@ const FeaturesSection = () => {
   const Icon = feature.icon
 
   return (
-    <section id="features" className="relative h-screen flex items-center justify-center px-6 bg-white">
+    <section id="features" className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 py-12 sm:py-20 bg-white">
       <div className="max-w-7xl mx-auto w-full">
         {/* Header */}
-        <div className="text-center space-y-4 mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-stone-900">
+        <div className="text-center space-y-3 sm:space-y-4 mb-8 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-stone-900">
             Fitur Unggulan
           </h2>
-          <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-stone-600 max-w-2xl mx-auto px-4">
             Jelajah Satwa menyediakan berbagai fitur untuk pengalaman belajar yang menyenangkan
           </p>
         </div>
 
         {/* Feature Slider */}
         <div className="relative">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             {/* Left - Image/Icon */}
-            <div className="relative">
-              <div className={`aspect-square rounded-3xl bg-gradient-to-br ${feature.color} p-12 flex items-center justify-center shadow-2xl transform transition-all duration-500`}>
-                <div className="text-9xl">{feature.image}</div>
+            <div className="relative order-2 md:order-1">
+              <div className={`aspect-square rounded-2xl sm:rounded-3xl bg-gradient-to-br ${feature.color} p-8 sm:p-12 flex items-center justify-center shadow-2xl transform transition-all duration-500`}>
+                <div className="text-6xl sm:text-8xl md:text-9xl">{feature.image}</div>
               </div>
               
-              {/* Decorative elements */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-amber-200 rounded-full blur-3xl opacity-50" />
-              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-amber-300 rounded-full blur-3xl opacity-50" />
+              {/* Decorative elements - hidden on mobile */}
+              <div className="hidden sm:block absolute -top-4 -right-4 w-24 h-24 bg-amber-200 rounded-full blur-3xl opacity-50" />
+              <div className="hidden sm:block absolute -bottom-4 -left-4 w-32 h-32 bg-amber-300 rounded-full blur-3xl opacity-50" />
             </div>
 
             {/* Right - Content */}
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-3 px-4 py-2 bg-amber-50 rounded-full border border-amber-200">
-                <Icon className="w-5 h-5 text-amber-600" />
-                <span className="text-sm font-medium text-amber-800">
+            <div className="space-y-4 sm:space-y-6 order-1 md:order-2">
+              <div className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-50 rounded-full border border-amber-200">
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                <span className="text-xs sm:text-sm font-medium text-amber-800">
                   Fitur {currentFeature + 1} dari {features.length}
                 </span>
               </div>
 
-              <h3 className="text-4xl md:text-5xl font-bold text-stone-900">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-stone-900">
                 {feature.title}
               </h3>
 
-              <p className="text-xl text-stone-600 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-stone-600 leading-relaxed">
                 {feature.description}
               </p>
 
-              <div className="pt-4">
-                <Link href={feature.link}>
-                  <Button size="lg" className="bg-amber-600 hover:bg-amber-700">
+              <div className="pt-2 sm:pt-4">
+                <Link href={feature.link} className="inline-block w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700">
                     Coba Fitur Ini
                   </Button>
                 </Link>
@@ -104,24 +104,26 @@ const FeaturesSection = () => {
           </div>
 
           {/* Navigation Arrows */}
-          <div className="flex justify-center gap-4 mt-12">
+          <div className="flex justify-center gap-3 sm:gap-4 mt-8 sm:mt-12">
             <button
               onClick={prevFeature}
-              className="p-3 rounded-full bg-stone-100 hover:bg-amber-600 hover:text-white transition-all duration-300 group"
+              aria-label="Previous feature"
+              className="p-2 sm:p-3 rounded-full bg-stone-100 hover:bg-amber-600 hover:text-white transition-all duration-300"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
             {/* Dots Indicator */}
-            <div className="flex items-center gap-2 px-6">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6">
               {features.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentFeature(index)}
+                  aria-label={`Go to feature ${index + 1}`}
                   className={`transition-all duration-300 rounded-full ${
                     index === currentFeature
-                      ? 'w-8 h-3 bg-amber-600'
-                      : 'w-3 h-3 bg-stone-300 hover:bg-stone-400'
+                      ? 'w-6 sm:w-8 h-2.5 sm:h-3 bg-amber-600'
+                      : 'w-2.5 sm:w-3 h-2.5 sm:h-3 bg-stone-300 hover:bg-stone-400'
                   }`}
                 />
               ))}
@@ -129,9 +131,10 @@ const FeaturesSection = () => {
 
             <button
               onClick={nextFeature}
-              className="p-3 rounded-full bg-stone-100 hover:bg-amber-600 hover:text-white transition-all duration-300 group"
+              aria-label="Next feature"
+              className="p-2 sm:p-3 rounded-full bg-stone-100 hover:bg-amber-600 hover:text-white transition-all duration-300"
             >
-              <ChevronRight className="w-6 h-6" />
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
         </div>

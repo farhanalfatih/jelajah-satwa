@@ -1,8 +1,9 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import Image from 'next/image'
 
 interface Step3Props {
   namaHewan: string
@@ -13,11 +14,35 @@ interface Step3Props {
     makanan: string
     faktaMenarik: string[]
     statusKonservasi: string
+    namaIlmiah?: string
   }
   onReset: () => void
 }
 
 const Step3 = ({ namaHewan, levelPemahaman, hasilAnalisis, onReset }: Step3Props) => {
+  const [foto, setFoto] = useState<string | null>(null)
+  const [loadingFoto, setLoadingFoto] = useState(true)
+
+  useEffect(() => {
+    const fetchFoto = async () => {
+      try {
+        setLoadingFoto(true)
+        const response = await fetch(`/api/animal-photo?animal=${encodeURIComponent(namaHewan)}`)
+        const data = await response.json()
+        
+        if (data.success && data.imageUrl) {
+          setFoto(data.imageUrl)
+        }
+      } catch (error) {
+        console.error('Error fetching photo:', error)
+      } finally {
+        setLoadingFoto(false)
+      }
+    }
+
+    fetchFoto()
+  }, [namaHewan])
+
   return (
     <div className="max-w-3xl mx-auto p-6">
       <div className="space-y-6">
@@ -27,10 +52,34 @@ const Step3 = ({ namaHewan, levelPemahaman, hasilAnalisis, onReset }: Step3Props
             ✓ Analisis Selesai
           </div>
           <h1 className="text-3xl font-bold">{namaHewan}</h1>
+          {hasilAnalisis.namaIlmiah && (
+            <p className="text-sm italic text-muted-foreground">
+              {hasilAnalisis.namaIlmiah}
+            </p>
+          )}
           <p className="text-muted-foreground">
             Level: <span className="capitalize font-medium">{levelPemahaman}</span>
           </p>
         </div>
+
+        <Separator />
+
+        {/* Photo Section */}
+        {loadingFoto ? (
+          <div className="w-full h-64 bg-muted animate-pulse rounded-lg flex items-center justify-center">
+            <span className="text-muted-foreground">Memuat foto...</span>
+          </div>
+        ) : foto ? (
+          <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden bg-muted">
+            <Image
+              src={foto}
+              alt={namaHewan}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 768px"
+            />
+          </div>
+        ) : null}
 
         <Separator />
 
@@ -102,12 +151,9 @@ const Step3 = ({ namaHewan, levelPemahaman, hasilAnalisis, onReset }: Step3Props
         <Separator />
 
         {/* Actions */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 md:grid">
           <Button onClick={onReset} variant="outline" className="flex-1">
             Jelajahi Hewan Lain
-          </Button>
-          <Button className="flex-1">
-            Simpan ke Koleksi
           </Button>
         </div>
       </div>

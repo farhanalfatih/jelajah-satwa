@@ -27,7 +27,6 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="text-2xl font-bold text-amber-600">🦁</div>
             <span className={`text-xl font-bold transition-colors ${
               isScrolled ? 'text-stone-900' : 'text-stone-900'
             }`}>
@@ -60,14 +59,6 @@ const Navbar = () => {
               }`}
             >
               Cara Kerja
-            </Link>
-            <Link 
-              href="/dashboard" 
-              className={`font-medium transition-colors hover:text-amber-600 ${
-                isScrolled ? 'text-stone-700' : 'text-stone-900'
-              }`}
-            >
-              Dashboard
             </Link>
           </div>
 

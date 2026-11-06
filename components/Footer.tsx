@@ -31,9 +31,6 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard" className="hover:text-amber-400 transition-colors">
-                  Dashboard
-                </Link>
               </li>
             </ul>
           </div>
@@ -45,11 +42,6 @@ const Footer = () => {
               <li>
                 <a href="#" className="hover:text-amber-400 transition-colors">
                   Tentang Kami
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-amber-400 transition-colors">
-                  FAQ
                 </a>
               </li>
               <li>
@@ -86,7 +78,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-stone-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-stone-400">
-            © 2024 Jelajah Satwa. All rights reserved.
+            © 2026 Jelajah Satwa. All rights reserved.
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-stone-400 hover:text-amber-400 transition-colors">

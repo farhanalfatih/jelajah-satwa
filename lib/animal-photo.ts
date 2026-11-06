@@ -1,7 +1,7 @@
 import type { FotoHewan } from "@/lib/api";
 
 // Wikimedia mewajibkan User-Agent yang jelas. Ganti emailnya dengan milikmu.
-const USER_AGENT = "AnimalAnalyzer/1.0 (kontak: emailkamu@example.com)";
+const USER_AGENT = "AnimalAnalyzer/1.0 (kontak: alfatihf504@gmail.com)";
 
 interface WikiPage {
   title: string;

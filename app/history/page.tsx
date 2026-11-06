@@ -1,21 +1,7 @@
 "use client"
 
 import React, { useState } from 'react'
-import { AppSidebar } from "@/components/app-sidebar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
+import DashboardLayout from '@/components/DashboardLayout'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Heart, Search, Trash2, Eye } from 'lucide-react'
@@ -86,135 +72,110 @@ export default function HistoryPage() {
   )
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        {/* Header */}
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex items-center gap-2 px-4 w-full">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/">
-                    Jelajah Satwa
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>History</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <div className="flex flex-1 flex-col gap-6 p-6">
-          {/* Header Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-stone-900">History Penjelajahan</h1>
-                <p className="text-stone-600 mt-1">Lihat semua hewan yang pernah kamu jelajahi</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  Filter
-                </Button>
-                <Button variant="outline" size="sm" className="text-rose-600 hover:text-rose-700">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Favorit
-                </Button>
-              </div>
+    <DashboardLayout breadcrumbs={[{ label: 'History' }]}>
+      <div className="flex flex-1 flex-col gap-6 p-6">
+        {/* Header Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-stone-900">History Penjelajahan</h1>
+              <p className="text-stone-600 mt-1">Lihat semua hewan yang pernah kamu jelajahi</p>
             </div>
-
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400 w-5 h-5" />
-              <Input
-                type="text"
-                placeholder="Cari hewan..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 py-6"
-              />
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                Filter
+              </Button>
+              <Button variant="outline" size="sm" className="text-rose-600 hover:text-rose-700">
+                <Heart className="w-4 h-4 mr-2" />
+                Favorit
+              </Button>
             </div>
           </div>
 
-          {/* Stats Summary */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg border bg-card">
-              <p className="text-sm text-muted-foreground">Total Penjelajahan</p>
-              <p className="text-2xl font-bold mt-1">{historyData.length}</p>
-            </div>
-            <div className="p-4 rounded-lg border bg-card">
-              <p className="text-sm text-muted-foreground">Favorit</p>
-              <p className="text-2xl font-bold mt-1">
-                {historyData.filter(h => h.isFavorite).length}
-              </p>
-            </div>
-            <div className="p-4 rounded-lg border bg-card">
-              <p className="text-sm text-muted-foreground">Kategori</p>
-              <p className="text-2xl font-bold mt-1">2</p>
-            </div>
-          </div>
-
-          {/* History List */}
-          <div className="space-y-3">
-            {filteredHistory.length > 0 ? (
-              filteredHistory.map((item) => (
-                <div
-                  key={item.id}
-                  className="group flex items-center justify-between p-4 rounded-xl border bg-card hover:shadow-md transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="text-4xl">{item.icon}</div>
-                    <div>
-                      <h3 className="text-lg font-bold text-stone-900">{item.name}</h3>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-sm text-muted-foreground">{item.date}</span>
-                        <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">
-                          {item.level}
-                        </span>
-                        <span className="text-sm text-stone-500">{item.category}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" variant="ghost">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      className={item.isFavorite ? "text-rose-500" : ""}
-                    >
-                      <Heart 
-                        className="w-4 h-4" 
-                        fill={item.isFavorite ? "currentColor" : "none"}
-                      />
-                    </Button>
-                    <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">🔍</div>
-                <p className="text-lg font-medium text-stone-600">Tidak ada hasil</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Coba kata kunci lain
-                </p>
-              </div>
-            )}
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400 w-5 h-5" />
+            <Input
+              type="text"
+              placeholder="Cari hewan..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 py-6"
+            />
           </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+
+        {/* Stats Summary */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="p-4 rounded-lg border bg-card">
+            <p className="text-sm text-muted-foreground">Total Penjelajahan</p>
+            <p className="text-2xl font-bold mt-1">{historyData.length}</p>
+          </div>
+          <div className="p-4 rounded-lg border bg-card">
+            <p className="text-sm text-muted-foreground">Favorit</p>
+            <p className="text-2xl font-bold mt-1">
+              {historyData.filter(h => h.isFavorite).length}
+            </p>
+          </div>
+          <div className="p-4 rounded-lg border bg-card">
+            <p className="text-sm text-muted-foreground">Kategori</p>
+            <p className="text-2xl font-bold mt-1">2</p>
+          </div>
+        </div>
+
+        {/* History List */}
+        <div className="space-y-3">
+          {filteredHistory.length > 0 ? (
+            filteredHistory.map((item) => (
+              <div
+                key={item.id}
+                className="group flex items-center justify-between p-4 rounded-xl border bg-card hover:shadow-md transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="text-4xl">{item.icon}</div>
+                  <div>
+                    <h3 className="text-lg font-bold text-stone-900">{item.name}</h3>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-sm text-muted-foreground">{item.date}</span>
+                      <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">
+                        {item.level}
+                      </span>
+                      <span className="text-sm text-stone-500">{item.category}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button size="sm" variant="ghost">
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    className={item.isFavorite ? "text-rose-500" : ""}
+                  >
+                    <Heart 
+                      className="w-4 h-4" 
+                      fill={item.isFavorite ? "currentColor" : "none"}
+                    />
+                  </Button>
+                  <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🔍</div>
+              <p className="text-lg font-medium text-stone-600">Tidak ada hasil</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Coba kata kunci lain
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </DashboardLayout>
   )
 }

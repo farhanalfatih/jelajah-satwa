@@ -1,18 +1,21 @@
-
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/server";
 import { GoogleGenAI } from "@google/genai";
+import { createClient } from "@/lib/server";
+import { cariFotoHewan } from "@/lib/animal-photo";
+import type { FotoHewan } from "@/lib/api";
 
 export const runtime = "nodejs";
 
 type LevelPemahaman = "pemula" | "menengah" | "lanjutan";
 
 interface AnalyzeResponse {
+  namaIlmiah: string;
   deskripsi: string;
   habitat: string;
   makanan: string;
   faktaMenarik: string[];
   statusKonservasi: string;
+  foto?: FotoHewan | null;
 }
 
 const validLevels = [
@@ -20,45 +23,6 @@ const validLevels = [
   "menengah",
   "lanjutan",
 ] as const;
-
-const MODELS = ["gemini-3.8-flash", "gemini-3.5-flash"];
-
-const sleep = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
-async function generateWithFallback(
-  ai: GoogleGenAI,
-  prompt: string
-): Promise<string> {
-  let lastError: unknown;
-
-  for (const model of MODELS) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const result = await ai.interactions.create({
-          model,
-          input: prompt,
-        });
-
-        if (!result.output_text) {
-          throw new Error("Gemini tidak memberikan response.");
-        }
-
-        return result.output_text;
-      } catch (error) {
-        lastError = error;
-        const { status } = getErrorDetails(error);
-
-        // Hanya coba lagi untuk error sementara
-        if (![429, 500, 503].includes(status)) throw error;
-
-        await sleep(1000 * (attempt + 1));
-      }
-    }
-  }
-
-  throw lastError;
-}
 
 const levelInstruksi: Record<LevelPemahaman, string> = {
   pemula:
@@ -70,6 +34,12 @@ const levelInstruksi: Record<LevelPemahaman, string> = {
   lanjutan:
     "Gunakan bahasa ilmiah dan detail dengan terminologi zoologi.",
 };
+
+// Model utama + cadangan jika model utama sedang sibuk
+const MODELS = ["gemini-3.8-flash", "gemini-3.5-flash"];
+
+const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 // Mengambil JSON dari response AI
 function extractJSON(text: string): string {
@@ -99,6 +69,7 @@ function validateResponse(
   const result = data as Record<string, unknown>;
 
   return (
+    typeof result.namaIlmiah === "string" &&
     typeof result.deskripsi === "string" &&
     typeof result.habitat === "string" &&
     typeof result.makanan === "string" &&
@@ -116,6 +87,8 @@ function getDummyData(
   namaHewan: string
 ): AnalyzeResponse {
   return {
+    namaIlmiah: "",
+
     deskripsi: `${namaHewan} adalah hewan yang memiliki karakteristik unik dan menarik untuk dipelajari.`,
 
     habitat: `${namaHewan} hidup di lingkungan alami yang sesuai dengan karakteristik dan kemampuan adaptasinya.`,
@@ -131,6 +104,8 @@ function getDummyData(
 
     statusKonservasi:
       `Status konservasi ${namaHewan} perlu diperhatikan berdasarkan kondisi populasinya.`,
+
+    foto: null,
   };
 }
 
@@ -167,26 +142,63 @@ function getErrorDetails(error: unknown) {
   );
 
   return {
-    status: status || Number(statusMatch?.[1] ?? 0),  
+    status: status || Number(statusMatch?.[1] ?? 0),
     message,
   };
 }
 
+// Panggil Gemini dengan retry + fallback model
+async function generateWithFallback(
+  ai: GoogleGenAI,
+  prompt: string
+): Promise<string> {
+  let lastError: unknown;
+
+  for (const model of MODELS) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        console.log(`Calling Gemini (${model}, attempt ${attempt + 1})...`);
+
+        const result = await ai.interactions.create({
+          model,
+          input: prompt,
+        });
+
+        if (!result.output_text) {
+          throw new Error("Gemini tidak memberikan response.");
+        }
+
+        return result.output_text;
+      } catch (error) {
+        lastError = error;
+        const { status } = getErrorDetails(error);
+
+        // Hanya coba lagi untuk error sementara
+        if (![429, 500, 503].includes(status)) throw error;
+
+        await sleep(1000 * (attempt + 1));
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 export async function POST(request: NextRequest) {
-
-  // const supabase = await createClient();
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
-
-  // if (!user) {
-  //   return NextResponse.json(
-  //     { error: "Silakan login terlebih dahulu." },
-  //     { status: 401 }
-  //   );
-  // }
-
   try {
+    // 0. Cek login (hapus blok ini jika Supabase belum disetup)
+    // const supabase = await createClient();
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+
+    // if (!user) {
+    //   return NextResponse.json(
+    //     { error: "Silakan login terlebih dahulu." },
+    //     { status: 401 }
+    //   );
+    // }
+
     // 1. Ambil request
     let body: unknown;
 
@@ -260,9 +272,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Jangan melakukan validasi prefix API Key secara manual.
-    // Key AQ. juga dapat digunakan pada SDK Gemini terbaru.
-
     // 6. Inisialisasi Gemini
     const ai = new GoogleGenAI({
       apiKey,
@@ -290,10 +299,12 @@ Ketentuan:
 6. Gunakan status "Tidak diketahui" jika status konservasi tidak dapat dipastikan.
 7. Gunakan bahasa Indonesia.
 8. Jangan menambahkan informasi di luar struktur JSON.
+9. Isi namaIlmiah dengan nama Latin spesies (format "Genus species"). Jika tidak yakin, isi string kosong. Jangan menebak.
 
 Kembalikan JSON dengan struktur berikut:
 
 {
+  "namaIlmiah": "Genus species",
   "deskripsi": "Deskripsi hewan",
   "habitat": "Habitat dan distribusi",
   "makanan": "Pola makan",
@@ -309,23 +320,11 @@ Kembalikan JSON dengan struktur berikut:
 Hanya keluarkan JSON valid tanpa markdown.
 `;
 
-    console.log("Calling Gemini API...");
     console.log("Animal:", nama);
     console.log("Level:", level);
 
-    // 8. Panggil Gemini API
-    // const result = await ai.interactions.create({
-    //   model: "gemini-3.8-flash",
-    //   input: prompt,
-    // });
-
+    // 8. Panggil Gemini API (retry + fallback model)
     const aiText = await generateWithFallback(ai, prompt);
-
-    if (!aiText) {
-      throw new Error(
-        "Gemini tidak memberikan response."
-      );
-    }
 
     // 9. Parse JSON
     const parsedData: unknown = JSON.parse(
@@ -343,8 +342,11 @@ Hanya keluarkan JSON valid tanpa markdown.
 
     console.log("Animal analysis completed.");
 
-    // 11. Kirim hasil ke frontend
-    return NextResponse.json(parsedData);
+    // 11. Cari foto hewan (tidak pernah melempar error)
+    const foto = await cariFotoHewan(parsedData.namaIlmiah, nama);
+
+    // 12. Kirim hasil ke frontend
+    return NextResponse.json({ ...parsedData, foto });
 
   } catch (error: unknown) {
     const { status, message } = getErrorDetails(error);
