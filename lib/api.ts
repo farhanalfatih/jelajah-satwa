@@ -1,10 +1,18 @@
 
+export interface FotoHewan {
+  url: string;
+  judul: string;
+  sumber: string; // link halaman Wikipedia, untuk atribusi
+}
+
 export interface HasilAnalisis {
+  namaIlmiah: string;
   deskripsi: string;
   habitat: string;
   makanan: string;
   faktaMenarik: string[];
   statusKonservasi: string;
+  foto: FotoHewan | null;
 }
 
 export type LevelPemahaman =

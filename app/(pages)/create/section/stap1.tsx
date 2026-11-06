@@ -1,8 +1,9 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 
 interface Step1Props {
   namaHewan: string
@@ -13,82 +14,191 @@ interface Step1Props {
 }
 
 const Step1 = ({ namaHewan, setNamaHewan, levelPemahaman, setLevelPemahaman, onNext }: Step1Props) => {
+  const [subScreen, setSubScreen] = useState<'nama' | 'level'>('nama')
+
   const levels = [
-    { value: 'pemula', label: 'Pemula', desc: 'Penjelasan dasar dan mudah dipahami' },
-    { value: 'menengah', label: 'Menengah', desc: 'Informasi lebih detail dengan istilah ilmiah' },
-    { value: 'lanjutan', label: 'Lanjutan', desc: 'Penjelasan mendalam dan komprehensif' }
+    { 
+      value: 'pemula', 
+      label: 'Pemula', 
+      desc: 'Penjelasan dasar dan mudah dipahami',
+      icon: '🌱',
+      color: 'from-green-500 to-emerald-500'
+    },
+    { 
+      value: 'menengah', 
+      label: 'Menengah', 
+      desc: 'Informasi lebih detail dengan istilah ilmiah',
+      icon: '📚',
+      color: 'from-blue-500 to-cyan-500'
+    },
+    { 
+      value: 'lanjutan', 
+      label: 'Lanjutan', 
+      desc: 'Penjelasan mendalam dan komprehensif',
+      icon: '🎓',
+      color: 'from-purple-500 to-pink-500'
+    }
   ]
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (namaHewan.trim() && levelPemahaman) {
-      onNext()
+  const handleNamaNext = () => {
+    if (namaHewan.trim()) {
+      setSubScreen('level')
     }
   }
 
+  const handleLevelSelect = (value: string) => {
+    setLevelPemahaman(value)
+    // Auto proceed setelah pilih level
+    setTimeout(() => {
+      onNext()
+    }, 300)
+  }
+
+  const handleBack = () => {
+    setSubScreen('nama')
+  }
+
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold">Jelajahi Dunia Satwa</h1>
-          <p className="text-muted-foreground">
-            Masukkan nama hewan yang ingin kamu pelajari
-          </p>
-        </div>
+    <div className="h-screen flex items-center justify-center px-6 bg-gradient-to-br from-stone-50 to-amber-50">
+      <div className="max-w-2xl w-full">
+        {/* Screen 1: Input Nama Hewan */}
+        {subScreen === 'nama' && (
+          <div className="space-y-8 animate-fade-in">
+            {/* Header */}
+            <div className="text-center space-y-4">
+              <div className="text-6xl mb-4">🦁</div>
+              <h1 className="text-4xl md:text-5xl font-bold text-stone-900">
+                Jelajahi Dunia Satwa
+              </h1>
+              <p className="text-xl text-stone-600">
+                Masukkan nama hewan yang ingin kamu pelajari
+              </p>
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Input Nama Hewan */}
-          <div className="space-y-2">
-            <label htmlFor="namaHewan" className="text-sm font-medium">
-              Nama Hewan
-            </label>
-            <Input
-              id="namaHewan"
-              type="text"
-              placeholder="Contoh: Harimau, Gajah, Panda..."
-              value={namaHewan}
-              onChange={(e) => setNamaHewan(e.target.value)}
-              className="w-full"
-              required
-            />
+            {/* Input Form */}
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  id="namaHewan"
+                  type="text"
+                  placeholder="Contoh: Harimau, Gajah, Panda..."
+                  value={namaHewan}
+                  onChange={(e) => setNamaHewan(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && namaHewan.trim()) {
+                      handleNamaNext()
+                    }
+                  }}
+                  className="w-full text-xl py-7 px-6 rounded-2xl border-2 border-stone-200 focus:border-amber-500 transition-all"
+                  autoFocus
+                />
+              </div>
+
+              {/* Popular Animals Suggestions */}
+              <div className="flex flex-wrap gap-2 justify-center">
+                {['Harimau', 'Gajah', 'Panda', 'Singa', 'Koala'].map((animal) => (
+                  <button
+                    key={animal}
+                    onClick={() => setNamaHewan(animal)}
+                    className="px-4 py-2 rounded-full bg-white border border-stone-200 hover:border-amber-500 hover:bg-amber-50 transition-all text-sm"
+                  >
+                    {animal}
+                  </button>
+                ))}
+              </div>
+
+              <Button
+                onClick={handleNamaNext}
+                className="w-full py-7 text-lg rounded-2xl bg-amber-600 hover:bg-amber-700"
+                size="lg"
+                disabled={!namaHewan.trim()}
+              >
+                Lanjutkan
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Step Indicator */}
+            <div className="text-center text-sm text-stone-500">
+              Langkah 1 dari 2
+            </div>
           </div>
+        )}
 
-          {/* Pilihan Level Pemahaman */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">
-              Level Pemahaman
-            </label>
-            <div className="grid gap-3">
+        {/* Screen 2: Pilih Level Pemahaman */}
+        {subScreen === 'level' && (
+          <div className="space-y-8 animate-fade-in">
+            {/* Header */}
+            <div className="text-center space-y-4">
+              <div className="inline-block px-4 py-2 bg-amber-100 rounded-full text-amber-800 font-medium mb-4">
+                {namaHewan}
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-stone-900">
+                Pilih Level Pemahaman
+              </h1>
+              <p className="text-xl text-stone-600">
+                Pilih tingkat detail informasi yang kamu inginkan
+              </p>
+            </div>
+
+            {/* Level Cards */}
+            <div className="grid gap-4">
               {levels.map((level) => (
                 <button
                   key={level.value}
-                  type="button"
-                  onClick={() => setLevelPemahaman(level.value)}
-                  className={`p-4 border rounded-lg text-left transition-all hover:border-primary ${
+                  onClick={() => handleLevelSelect(level.value)}
+                  className={`group relative overflow-hidden p-6 rounded-2xl border-2 text-left transition-all hover:scale-[1.02] ${
                     levelPemahaman === level.value
-                      ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                      : 'border-border'
+                      ? 'border-amber-500 bg-amber-50 ring-4 ring-amber-100'
+                      : 'border-stone-200 bg-white hover:border-amber-400 hover:shadow-lg'
                   }`}
                 >
-                  <div className="font-medium">{level.label}</div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    {level.desc}
+                  <div className="flex items-center gap-4">
+                    {/* Icon with gradient */}
+                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${level.color} flex items-center justify-center text-3xl flex-shrink-0 shadow-lg`}>
+                      {level.icon}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1">
+                      <div className="text-2xl font-bold text-stone-900 mb-1">
+                        {level.label}
+                      </div>
+                      <div className="text-stone-600">
+                        {level.desc}
+                      </div>
+                    </div>
+
+                    {/* Arrow indicator */}
+                    <ArrowRight className={`w-6 h-6 transition-all ${
+                      levelPemahaman === level.value 
+                        ? 'text-amber-600' 
+                        : 'text-stone-400 group-hover:text-amber-600 group-hover:translate-x-1'
+                    }`} />
                   </div>
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* Button Submit */}
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            disabled={!namaHewan.trim() || !levelPemahaman}
-          >
-            Mulai Jelajah
-          </Button>
-        </form>
+            {/* Back Button */}
+            <div className="flex gap-3">
+              <Button
+                onClick={handleBack}
+                variant="outline"
+                className="flex-1 py-7 text-lg rounded-2xl border-2"
+                size="lg"
+              >
+                <ArrowLeft className="mr-2 w-5 h-5" />
+                Kembali
+              </Button>
+            </div>
+
+            {/* Step Indicator */}
+            <div className="text-center text-sm text-stone-500">
+              Langkah 2 dari 2
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

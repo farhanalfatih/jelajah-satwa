@@ -1,5 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/server";
 import { GoogleGenAI } from "@google/genai";
 
 export const runtime = "nodejs";
@@ -19,6 +20,45 @@ const validLevels = [
   "menengah",
   "lanjutan",
 ] as const;
+
+const MODELS = ["gemini-3.8-flash", "gemini-3.5-flash"];
+
+const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+async function generateWithFallback(
+  ai: GoogleGenAI,
+  prompt: string
+): Promise<string> {
+  let lastError: unknown;
+
+  for (const model of MODELS) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const result = await ai.interactions.create({
+          model,
+          input: prompt,
+        });
+
+        if (!result.output_text) {
+          throw new Error("Gemini tidak memberikan response.");
+        }
+
+        return result.output_text;
+      } catch (error) {
+        lastError = error;
+        const { status } = getErrorDetails(error);
+
+        // Hanya coba lagi untuk error sementara
+        if (![429, 500, 503].includes(status)) throw error;
+
+        await sleep(1000 * (attempt + 1));
+      }
+    }
+  }
+
+  throw lastError;
+}
 
 const levelInstruksi: Record<LevelPemahaman, string> = {
   pemula:
@@ -127,12 +167,25 @@ function getErrorDetails(error: unknown) {
   );
 
   return {
-    status: status || Number(statusMatch?.[1] ?? 0),
+    status: status || Number(statusMatch?.[1] ?? 0),  
     message,
   };
 }
 
 export async function POST(request: NextRequest) {
+
+  // const supabase = await createClient();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
+
+  // if (!user) {
+  //   return NextResponse.json(
+  //     { error: "Silakan login terlebih dahulu." },
+  //     { status: 401 }
+  //   );
+  // }
+
   try {
     // 1. Ambil request
     let body: unknown;
@@ -261,12 +314,12 @@ Hanya keluarkan JSON valid tanpa markdown.
     console.log("Level:", level);
 
     // 8. Panggil Gemini API
-    const result = await ai.interactions.create({
-      model: "gemini-3.8-flash",
-      input: prompt,
-    });
+    // const result = await ai.interactions.create({
+    //   model: "gemini-3.8-flash",
+    //   input: prompt,
+    // });
 
-    const aiText = result.output_text;
+    const aiText = await generateWithFallback(ai, prompt);
 
     if (!aiText) {
       throw new Error(

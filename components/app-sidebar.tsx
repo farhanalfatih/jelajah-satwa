@@ -13,163 +13,109 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { GalleryVerticalEndIcon, AudioLinesIcon, TerminalIcon, TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, FrameIcon, PieChartIcon, MapIcon } from "lucide-react"
+import { 
+  LayoutDashboardIcon, 
+  HistoryIcon, 
+  CompassIcon, 
+  HeartIcon, 
+  BookOpenIcon, 
+  SettingsIcon,
+  PawPrint
+} from "lucide-react"
 
-// This is sample data.
+// Data untuk Jelajah Satwa
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "Guest User",
+    email: "guest@jelajahsatwa.com",
+    avatar: "/avatars/user.jpg",
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Jelajah Satwa",
       logo: (
-        <GalleryVerticalEndIcon
-        />
-      ),
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: (
-        <AudioLinesIcon
-        />
-      ),
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: (
-        <TerminalIcon
-        />
+        <PawPrint className="text-amber-600" />
       ),
       plan: "Free",
     },
   ],
   navMain: [
     {
-      title: "Playground",
-      url: "#",
+      title: "Dashboard",
+      url: "/dashboard",
       icon: (
-        <TerminalSquareIcon
-        />
+        <LayoutDashboardIcon />
       ),
       isActive: true,
+    },
+    {
+      title: "Jelajah Satwa",
+      url: "/create",
+      icon: (
+        <CompassIcon />
+      ),
+      isActive: false,
+    },
+    {
+      title: "History",
+      url: "#",
+      icon: (
+        <HistoryIcon />
+      ),
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Semua History",
+          url: "/history",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "Favorit",
+          url: "/history/favorites",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "Terakhir Dilihat",
+          url: "/history/recent",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Koleksi",
       url: "#",
       icon: (
-        <BotIcon
-        />
+        <HeartIcon />
       ),
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "Mamalia",
+          url: "/collection/mammals",
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: "Aves (Burung)",
+          url: "/collection/birds",
         },
         {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: (
-        <BookOpenIcon
-        />
-      ),
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
+          title: "Reptilia",
+          url: "/collection/reptiles",
         },
         {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: (
-        <Settings2Icon
-        />
-      ),
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          title: "Amfibi",
+          url: "/collection/amphibians",
         },
       ],
     },
   ],
   projects: [
     {
-      name: "Design Engineering",
-      url: "#",
+      name: "Belajar Satwa",
+      url: "/learn",
       icon: (
-        <FrameIcon
-        />
+        <BookOpenIcon />
       ),
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
+      name: "Pengaturan",
+      url: "/settings",
       icon: (
-        <PieChartIcon
-        />
-      ),
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: (
-        <MapIcon
-        />
+        <SettingsIcon />
       ),
     },
   ],
